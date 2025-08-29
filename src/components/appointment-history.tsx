@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { Calendar, Clock, BookOpen, History } from 'lucide-react';
 import type { Appointment } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
@@ -20,13 +21,13 @@ function AppointmentItem({ appointment }: { appointment: Appointment }) {
     <div className="p-4 border-b last:border-b-0">
       <div className="flex items-start space-x-4">
         <div className="flex flex-col items-center justify-center p-2 rounded-md bg-muted text-muted-foreground">
-          <span className="text-sm font-bold">{format(appointmentDate, 'MMM')}</span>
+          <span className="text-sm font-bold">{format(appointmentDate, 'MMM', { locale: es })}</span>
           <span className="text-2xl font-bold">{format(appointmentDate, 'dd')}</span>
         </div>
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-1">
             <Clock className="h-4 w-4 text-muted-foreground" />
-            <p className="text-sm font-medium">{format(appointmentDate, 'p')}</p>
+            <p className="text-sm font-medium">{format(appointmentDate, 'p', { locale: es })}</p>
           </div>
           <div className="flex items-start space-x-2">
             <BookOpen className="h-4 w-4 text-muted-foreground mt-0.5" />
@@ -67,11 +68,11 @@ export function AppointmentHistory({ appointments }: AppointmentHistoryProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Appointment History</CardTitle>
-          <CardDescription>Loading your appointment history...</CardDescription>
+          <CardTitle>Historial de Citas</CardTitle>
+          <CardDescription>Cargando tu historial de citas...</CardDescription>
         </CardHeader>
         <CardContent className="h-[200px] flex items-center justify-center">
-            <div className="animate-pulse text-muted-foreground">Loading...</div>
+            <div className="animate-pulse text-muted-foreground">Cargando...</div>
         </CardContent>
       </Card>
     );
@@ -89,26 +90,26 @@ export function AppointmentHistory({ appointments }: AppointmentHistoryProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Appointment History</CardTitle>
-        <CardDescription>View your upcoming and past appointments.</CardDescription>
+        <CardTitle>Historial de Citas</CardTitle>
+        <CardDescription>Mira tus citas próximas y pasadas.</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="upcoming" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="upcoming">
               <Calendar className="mr-2 h-4 w-4" />
-              Upcoming ({upcomingAppointments.length})
+              Próximas ({upcomingAppointments.length})
             </TabsTrigger>
             <TabsTrigger value="past">
               <History className="mr-2 h-4 w-4" />
-              Past ({pastAppointments.length})
+              Pasadas ({pastAppointments.length})
             </TabsTrigger>
           </TabsList>
           <TabsContent value="upcoming">
             <ScrollArea className="h-[400px] border rounded-md">
                 <AppointmentList
                     appointments={upcomingAppointments}
-                    emptyMessage="You have no upcoming appointments."
+                    emptyMessage="No tienes citas próximas."
                 />
             </ScrollArea>
           </TabsContent>
@@ -116,7 +117,7 @@ export function AppointmentHistory({ appointments }: AppointmentHistoryProps) {
             <ScrollArea className="h-[400px] border rounded-md">
                 <AppointmentList
                     appointments={pastAppointments}
-                    emptyMessage="You have no past appointments."
+                    emptyMessage="No tienes citas pasadas."
                 />
             </ScrollArea>
           </TabsContent>

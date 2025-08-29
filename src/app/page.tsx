@@ -17,9 +17,9 @@ export default function Home() {
       </header>
       <main className="flex-1 container mx-auto p-4 md:p-8">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Your Easy Appointment Scheduler</h2>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Tu Agendador de Citas Fácil</h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            Quickly book your next appointment. Use our AI assistant to help you describe your reason for visiting.
+            Agenda rápidamente tu próxima cita. Usa nuestro asistente de IA para ayudarte a describir el motivo de tu visita.
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
@@ -34,7 +34,7 @@ export default function Home() {
       <footer className="py-6 md:px-8 md:py-0 border-t">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-            Built by a senior engineer. The source code is available.
+            Construido por un ingeniero senior. El código fuente está disponible.
           </p>
         </div>
       </footer>

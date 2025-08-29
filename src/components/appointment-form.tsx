@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { CalendarIcon, Clock, Loader2, Sparkles } from 'lucide-react';
 
 import { appointmentReasonAssistance } from '@/ai/flows/appointment-reason-assistance';
@@ -21,13 +22,13 @@ import { useToast } from '@/hooks/use-toast';
 
 const appointmentSchema = z.object({
   date: z.date({
-    required_error: 'A date is required.',
+    required_error: 'Se requiere una fecha.',
   }),
   time: z.string({
-    required_error: 'A time is required.',
+    required_error: 'Se requiere una hora.',
   }),
   reason: z.string().min(10, {
-    message: 'Reason must be at least 10 characters.',
+    message: 'El motivo debe tener al menos 10 caracteres.',
   }),
 });
 
@@ -64,8 +65,8 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
     if (!currentReason || currentReason.length < 5) {
       toast({
         variant: "destructive",
-        title: "AI Assistant Error",
-        description: "Please provide a brief reason first (at least 5 characters).",
+        title: "Error del Asistente de IA",
+        description: "Por favor, proporciona un motivo breve primero (al menos 5 caracteres).",
       });
       return;
     }
@@ -76,16 +77,16 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
         if (result.elaboration) {
           form.setValue('reason', result.elaboration, { shouldValidate: true });
           toast({
-            title: "AI Assistant",
-            description: "Your reason has been elaborated.",
+            title: "Asistente de IA",
+            description: "Tu motivo ha sido elaborado.",
           });
         }
       } catch (error) {
         console.error("AI elaboration failed:", error);
         toast({
           variant: "destructive",
-          title: "AI Error",
-          description: "Could not connect to the AI assistant. Please try again later.",
+          title: "Error de IA",
+          description: "No se pudo conectar con el asistente de IA. Por favor, inténtalo de nuevo más tarde.",
         });
       }
     });
@@ -97,8 +98,8 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
       date: format(data.date, 'yyyy-MM-dd'),
     });
     toast({
-      title: "✅ Appointment Booked!",
-      description: `Your appointment is set for ${format(data.date, 'PPP')} at ${timeSlots.find(t => t.value === data.time)?.label}.`,
+      title: "✅ ¡Cita Agendada!",
+      description: `Tu cita está programada para ${format(data.date, 'PPP', { locale: es })} a las ${timeSlots.find(t => t.value === data.time)?.label}.`,
     });
     form.reset();
   }
@@ -106,8 +107,8 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Book an Appointment</CardTitle>
-        <CardDescription>Fill out the form below to schedule your visit.</CardDescription>
+        <CardTitle>Agendar una Cita</CardTitle>
+        <CardDescription>Completa el formulario para agendar tu visita.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -118,7 +119,7 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Date</FormLabel>
+                    <FormLabel>Fecha</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -130,9 +131,9 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
                             )}
                           >
                             {field.value ? (
-                              format(field.value, 'PPP')
+                              format(field.value, 'PPP', { locale: es })
                             ) : (
-                              <span>Pick a date</span>
+                              <span>Elige una fecha</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -145,6 +146,7 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
                           onSelect={field.onChange}
                           disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
                           initialFocus
+                          locale={es}
                         />
                       </PopoverContent>
                     </Popover>
@@ -157,12 +159,12 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
                 name="time"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Time</FormLabel>
+                    <FormLabel>Hora</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <Clock className="mr-2 h-4 w-4 opacity-50" />
-                          <SelectValue placeholder="Select a time" />
+                          <SelectValue placeholder="Elige una hora" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -185,7 +187,7 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <div className="flex justify-between items-center">
-                    <FormLabel>Reason for Appointment</FormLabel>
+                    <FormLabel>Motivo de la Cita</FormLabel>
                     <Button
                       type="button"
                       variant="ghost"
@@ -199,12 +201,12 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
                       ) : (
                         <Sparkles className="mr-2 h-4 w-4 text-yellow-500" />
                       )}
-                      Elaborate with AI
+                      Elaborar con IA
                     </Button>
                   </div>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., Annual check-up, feeling unwell, etc."
+                      placeholder="Ej: Chequeo anual, malestar, etc."
                       className="resize-none"
                       {...field}
                     />
@@ -215,7 +217,7 @@ export function AppointmentForm({ onAppointmentSubmit }: AppointmentFormProps) {
             />
             
             <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-              Schedule Appointment
+              Agendar Cita
             </Button>
           </form>
         </Form>

@@ -33,13 +33,15 @@ const prompt = ai.definePrompt({
   name: 'appointmentReasonAssistancePrompt',
   input: {schema: AppointmentReasonAssistanceInputSchema},
   output: {schema: AppointmentReasonAssistanceOutputSchema},
-  prompt: `You are an AI assistant helping users elaborate on their reason for an appointment.
+  prompt: `Eres un asistente de IA que ayuda a los usuarios a dar más detalles sobre el motivo de su cita.
 
-  Given the user's initial reason, provide a more detailed and elaborated explanation.
+  Dado el motivo inicial del usuario, proporciona una explicación más detallada y elaborada.
+  
+  Elabora la respuesta en español.
 
-  Initial Reason: {{{reason}}}
+  Motivo inicial: {{{reason}}}
 
-  Elaborated Reason:`,
+  Motivo elaborado:`,
 });
 
 const appointmentReasonAssistanceFlow = ai.defineFlow(
