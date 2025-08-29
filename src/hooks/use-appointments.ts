@@ -4,27 +4,29 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Appointment } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast";
 
-const STORAGE_KEY = 'citaFacilAppointments';
+const getStorageKey = (userId?: string) => `citaFacilAppointments_${userId || 'guest'}`;
 
-export function useAppointments() {
+export function useAppointments(userId?: string) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const { toast } = useToast();
+  const STORAGE_KEY = getStorageKey(userId);
 
   useEffect(() => {
+    if (!userId) return;
     try {
       const storedAppointments = localStorage.getItem(STORAGE_KEY);
       if (storedAppointments) {
         const parsedAppointments: Appointment[] = JSON.parse(storedAppointments);
         setAppointments(parsedAppointments);
         
-        // Schedule notifications for existing appointments on initial load
         parsedAppointments.forEach(appt => scheduleNotification(appt));
+      } else {
+        setAppointments([]);
       }
     } catch (error) {
       console.error("Failed to parse appointments from localStorage", error);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  // Empty dependency array is intentional to run only once on mount.
+  }, [userId, STORAGE_KEY]); // Re-run when userId changes
 
   const scheduleNotification = useCallback((appointment: Appointment) => {
     const appointmentTime = new Date(`${appointment.date}T${appointment.time}`).getTime();
@@ -35,14 +37,16 @@ export function useAppointments() {
       const delay = notificationTime - now;
       setTimeout(() => {
         toast({
-          title: "🗓️ Upcoming Appointment",
-          description: `Your appointment is in 15 minutes.`,
+          title: "🗓️ Cita próxima",
+          description: `Tu cita es en 15 minutos.`,
         });
       }, delay);
     }
   }, [toast]);
   
   const addAppointment = useCallback((newAppointment: Omit<Appointment, 'id'>) => {
+    if(!userId) return;
+
     const appointmentWithId = { ...newAppointment, id: crypto.randomUUID() };
     
     setAppointments(prev => {
@@ -59,7 +63,30 @@ export function useAppointments() {
 
       return updatedAppointments;
     });
-  }, [scheduleNotification]);
+  }, [userId, STORAGE_KEY, scheduleNotification]);
+
+  const deleteAppointment = useCallback((id: string) => {
+    if(!userId) return;
+
+    setAppointments(prev => {
+        const updatedAppointments = prev.filter(appt => appt.id !== id);
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedAppointments));
+            toast({
+              title: "✅ Cita Eliminada",
+              description: "Tu cita ha sido eliminada exitosamente.",
+            });
+        } catch (error) {
+            console.error("Failed to save appointments to localStorage", error);
+            toast({
+              variant: 'destructive',
+              title: "Error",
+              description: "No se pudo eliminar la cita.",
+            });
+        }
+        return updatedAppointments;
+    });
+  }, [userId, STORAGE_KEY, toast]);
   
-  return { appointments, addAppointment };
+  return { appointments, addAppointment, deleteAppointment };
 }

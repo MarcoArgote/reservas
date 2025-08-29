@@ -3,18 +3,21 @@
 import { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Clock, BookOpen, History } from 'lucide-react';
+import { Calendar, Clock, BookOpen, History, Trash2 } from 'lucide-react';
 import type { Appointment } from '@/lib/types';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from './ui/scroll-area';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
 
 interface AppointmentHistoryProps {
   appointments: Appointment[];
+  onDeleteAppointment: (id: string) => void;
 }
 
-function AppointmentItem({ appointment }: { appointment: Appointment }) {
+function AppointmentItem({ appointment, onDelete }: { appointment: Appointment; onDelete: (id: string) => void; }) {
   const appointmentDate = parseISO(`${appointment.date}T${appointment.time}`);
   
   return (
@@ -34,12 +37,33 @@ function AppointmentItem({ appointment }: { appointment: Appointment }) {
             <p className="text-sm text-muted-foreground">{appointment.reason}</p>
           </div>
         </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. Esto eliminará permanentemente tu cita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={() => onDelete(appointment.id)} className="bg-destructive hover:bg-destructive/90">
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
 }
 
-function AppointmentList({ appointments, emptyMessage }: { appointments: Appointment[]; emptyMessage: string }) {
+function AppointmentList({ appointments, emptyMessage, onDelete }: { appointments: Appointment[]; emptyMessage: string; onDelete: (id: string) => void; }) {
   if (appointments.length === 0) {
     return (
       <div className="text-center py-16">
@@ -51,13 +75,13 @@ function AppointmentList({ appointments, emptyMessage }: { appointments: Appoint
   return (
     <div className="space-y-2">
       {appointments.map(app => (
-        <AppointmentItem key={app.id} appointment={app} />
+        <AppointmentItem key={app.id} appointment={app} onDelete={onDelete} />
       ))}
     </div>
   );
 }
 
-export function AppointmentHistory({ appointments }: AppointmentHistoryProps) {
+export function AppointmentHistory({ appointments, onDeleteAppointment }: AppointmentHistoryProps) {
   const [isClient, setIsClient] = useState(false);
   
   useEffect(() => {
@@ -110,6 +134,7 @@ export function AppointmentHistory({ appointments }: AppointmentHistoryProps) {
                 <AppointmentList
                     appointments={upcomingAppointments}
                     emptyMessage="No tienes citas próximas."
+                    onDelete={onDeleteAppointment}
                 />
             </ScrollArea>
           </TabsContent>
@@ -118,6 +143,7 @@ export function AppointmentHistory({ appointments }: AppointmentHistoryProps) {
                 <AppointmentList
                     appointments={pastAppointments}
                     emptyMessage="No tienes citas pasadas."
+                    onDelete={onDeleteAppointment}
                 />
             </ScrollArea>
           </TabsContent>
