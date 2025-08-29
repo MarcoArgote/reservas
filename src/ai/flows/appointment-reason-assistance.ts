@@ -31,7 +31,7 @@ export async function appointmentReasonAssistance(input: AppointmentReasonAssist
 
 const prompt = ai.definePrompt({
   name: 'appointmentReasonAssistancePrompt',
-  input: {schema: AppointmentReasonAssistanceInputSchema},
+  inputSchema: AppointmentReasonAssistanceInputSchema,
   output: {schema: AppointmentReasonAssistanceOutputSchema},
   prompt: `Eres un asistente de IA que ayuda a los usuarios a dar más detalles sobre el motivo de su cita.
 
@@ -39,9 +39,7 @@ const prompt = ai.definePrompt({
   
   Elabora la respuesta en español.
 
-  Motivo inicial: {{{reason}}}
-
-  Motivo elaborado:`,
+  Motivo inicial: {{{reason}}}`,
 });
 
 const appointmentReasonAssistanceFlow = ai.defineFlow(
